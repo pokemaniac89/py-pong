@@ -68,7 +68,7 @@ class Game (object):
                 self.ball.x = self.paddle_a.right
                 self.ball.velocity[0] = -self.ball.velocity[0]
                 delta = (self.ball.centery - self.paddle_a.centery) / (self.paddle_a.height / 2.0)
-                self.ball.angle += math.pi / 6.0
+                self.ball.angle -= math.pi / 6.0
                 self.play_sound(self.sound_paddle)
         else:
             # Right paddle
@@ -76,7 +76,7 @@ class Game (object):
                 self.ball.x = self.paddle_b.x - self.ball.width
                 self.ball.velocity[0] = -self.ball.velocity[0]
                 delta = (self.ball.centery - self.paddle_b.centery) / (self.paddle_b.height / 2.0)
-                self.ball.angle += math.pi / 6.0 * delta
+                self.ball.angle -= math.pi / 6.0 * delta
                 self.play_sound(self.sound_paddle)
         # Check the ball is still in play
         if self.ball.x < self.bounds.x:
