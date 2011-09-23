@@ -19,9 +19,9 @@ def run ():
     output_surface = display_surface.copy().convert_alpha()
     output_surface.fill((0,0,0))
     clock = pygame.time.Clock()
-    
-    # Prepare our game
     input_state = {'key': None, 'mouse': None}
+    
+    # Prepare game
     player_a = BasicAIPlayer()
     player_b = BasicAIPlayer()
     game = pypong.Game(player_a, player_b, configuration)
