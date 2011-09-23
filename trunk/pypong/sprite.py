@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 from pygame.sprite import Sprite
 
 class BaseGameSprite (Sprite):
@@ -21,6 +21,8 @@ class BaseGameSprite (Sprite):
     width = property(lambda self: self.rect.width)
     bottom = property(lambda self: self.rect.bottom)
     right = property(lambda self: self.rect.right)
+    centerx = property(lambda self: self.rect.centerx)
+    centery = property(lambda self: self.rect.centery)
     
 class Paddle (BaseGameSprite):
     def __init__ (self, velocity, image, bounds_y, *groups):
@@ -41,22 +43,23 @@ class Line (BaseGameSprite):
         self.rect = self.image.get_rect()
 
 class Ball (BaseGameSprite):
-    def __init__ (self, image, bounds, *groups):
+    def __init__ (self, image, *groups):
         Sprite.__init__(self, *groups)
         self.image = image
         self.rect = self.image.get_rect()
         self.velocity = [0.,0.]
-        self.bounds = bounds
         
     def update (self):
         self.rect.x =  self.rect.x + self.velocity[0]
         self.rect.y =  self.rect.y + self.velocity[1]
-        if self.rect.y < self.bounds.top:
-            self.rect.y = self.bounds.top
-            self.velocity[1] = -self.velocity[1]
-        elif self.rect.y > self.bounds.bottom:
-            self.rect.y = self.bounds.bottom
-            self.velocity[1] = -self.velocity[1]
+    
+    def get_angle (self):
+        return math.atan2(self.velocity[1], self.velocity[0])
+    def set_angle (self, value):
+        m = math.sqrt(self.velocity[0]**2+self.velocity[1]**2)
+        self.velocity[0] = m * math.cos(value)
+        self.velocity[1] = m * math.sin(value)
+    angle = property(get_angle, set_angle)
     
 class Score (BaseGameSprite):
     def __init__ (self, image_list, *groups):

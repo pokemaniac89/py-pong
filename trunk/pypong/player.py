@@ -4,10 +4,12 @@ class BasicAIPlayer (object):
 
     def update (self, paddle, game):
         if (paddle.x < game.bounds.centerx and game.ball.x < game.bounds.centerx) or (paddle.x > game.bounds.centerx and game.ball.x > game.bounds.centerx):
-            if paddle.y > game.ball.bottom:
-                paddle.direction = -1
-            elif paddle.bottom < game.ball.y:
-                paddle.direction = 1
+            delta = paddle.centery - game.ball.centery
+            if abs(delta) > paddle.velocity:
+                if delta > 0:
+                    paddle.direction = -1
+                else:
+                    paddle.direction = 1
             else:
                 paddle.direction = 0
         else:
@@ -35,7 +37,7 @@ class MousePlayer (object):
         pygame.mouse.set_visible(False)
         
     def update (self, paddle, game):
-        centery = (paddle.y+paddle.height/2)/int(paddle.velocity)
+        centery = paddle.centery/int(paddle.velocity)
         mousey = self.input_state['mouse'][1]/int(paddle.velocity)
         if centery > mousey:
             paddle.direction = -1

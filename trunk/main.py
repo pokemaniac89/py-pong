@@ -10,10 +10,15 @@ def run ():
         'paddle_velocity': 4,
         'line_image': 'assets/dividing-line.png',
         'ball_image': 'assets/ball.png',
+        'ball_velocity': 4,
         'score_a_position': (141, 30),
         'score_b_position': (473, 30),
         'digit_image': 'assets/digit_%i.png',
+        'sound_missed': 'assets/missed-ball.wav',
+        'sound_paddle': 'assets/bounce-paddle.wav',
+        'sound_wall': 'assets/bounce-wall.wav',
     }
+    pygame.mixer.pre_init(22050, -16, 2, 1024)
     pygame.init()
     display_surface = pygame.display.set_mode(configuration['screen_size'])
     output_surface = display_surface.copy().convert_alpha()
@@ -38,7 +43,7 @@ def run ():
         input_state['mouse'] = pygame.mouse.get_pos()
         game.update()
         game.draw(output_surface)
-        pygame.surfarray.pixels_alpha(output_surface)[:,::2] = 32
+        pygame.surfarray.pixels_alpha(output_surface)[:,::2] = 12
         display_surface.blit(output_surface, (0,0))
         pygame.display.flip()
         for event in pygame.event.get():
