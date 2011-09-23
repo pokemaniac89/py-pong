@@ -49,6 +49,7 @@ class Game (object):
             self.ball.velocity[0] = -self.ball.velocity[0]
         
     def update (self):
+        
         # Collision check
         if self.ball.y < self.bounds.top:
             self.ball.y = self.bounds.top
@@ -58,6 +59,7 @@ class Game (object):
             self.ball.y = self.bounds.bottom
             self.ball.velocity[1] = -self.ball.velocity[1]
             self.play_sound(self.sound_wall)
+            
         # Update sprites and players
         self.sprites.update()
         self.player_a.update(self.paddle_a, self)
