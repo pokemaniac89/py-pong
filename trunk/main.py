@@ -27,6 +27,9 @@ def run ():
     input_state = {'key': None, 'mouse': None}
     
     # Prepare game
+    #~ player_a = KeyboardPlayer(input_state, pygame.K_w, pygame.K_s)
+    #~ player_b = MousePlayer(input_state)
+    
     player_a = BasicAIPlayer()
     player_b = BasicAIPlayer()
     game = pypong.Game(player_a, player_b, configuration)
