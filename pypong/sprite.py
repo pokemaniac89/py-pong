@@ -77,8 +77,7 @@ class Score (BaseGameSprite):
         digit_spacing = 8
         digit_width = self.image_list[0].get_width()
         digit_height = self.image_list[0].get_height()
-        values = [int(i) for i in list(str(self.score_value))]
-        values.reverse()
+        values = map(int, reversed(str(self.score_value)))
         surface_width = len(values) * digit_width + (len(values)-1) * digit_spacing
         if not self.image or self.image.get_width() < surface_width:
             self.image = pygame.Surface((surface_width, digit_height))
