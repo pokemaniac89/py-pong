@@ -3,7 +3,7 @@ import pygame, math, random, sprite
 def load_image (path):
     surface = pygame.image.load(path)
     surface.convert()
-    pygame.surfarray.pixels3d(surface)[:,:,0:1:2] = 0
+    pygame.surfarray.pixels3d(surface)[:,:,0:1:] = 0
     return surface
 
 class Game (object):
@@ -26,10 +26,16 @@ class Game (object):
         self.score_b = sprite.Score(digit_images, self.sprites)
         self.score_b.position = configuration['score_b_position']
         ball_image = load_image(configuration['ball_image'])
-        self.bounds = pygame.Rect(0, 0, configuration['screen_size'][0]-ball_image.get_width(), configuration['screen_size'][1]-ball_image.get_height())
-        self.ball = sprite.Ball(ball_image, self.bounds, self.sprites)
+        self.ball = sprite.Ball(ball_image, self.sprites)
+        self.bounds = pygame.Rect(20, 0, configuration['screen_size'][0]-ball_image.get_width()-20, configuration['screen_size'][1]-ball_image.get_height())
+        self.sound_missed = pygame.mixer.Sound(configuration['sound_missed'])
+        self.sound_paddle = pygame.mixer.Sound(configuration['sound_paddle'])
+        self.sound_wall = pygame.mixer.Sound(configuration['sound_wall'])
         self.reset_game(True)
         self.running = True
+        
+    def play_sound (self, sound):
+        sound.play()
         
     def reset_game (self, reset_paddles=False):
         if reset_paddles:
@@ -37,22 +43,50 @@ class Game (object):
             self.paddle_b.position = (self.configuration['paddle_b_position'], (self.configuration['screen_size'][1]-self.paddle_a.height)/2)
         self.ball.position = ((self.configuration['screen_size'][0]-self.ball.width)/2, (self.configuration['screen_size'][1]-self.ball.height)/2)
         a = random.random() * math.pi / 2. - math.pi / 4.
-        self.ball.velocity[0] = 3 * math.cos(a)
-        self.ball.velocity[1] = 3 * math.sin(a)
+        self.ball.velocity[0] = self.configuration['ball_velocity'] * math.cos(a)
+        self.ball.velocity[1] = self.configuration['ball_velocity'] * math.sin(a)
         if random.random() < 0.5:
             self.ball.velocity[0] = -self.ball.velocity[0]
         
     def update (self):
+        # Update sprites and players
         self.sprites.update()
         self.player_a.update(self.paddle_a, self)
         self.player_b.update(self.paddle_b, self)
-        
-        if self.ball.position[0] < self.paddle_a.position[0]:
+        # Collision check
+        if self.ball.y < self.bounds.top:
+            self.ball.y = self.bounds.top
+            self.ball.velocity[1] = -self.ball.velocity[1]
+            self.play_sound(self.sound_wall)
+        elif self.ball.y > self.bounds.bottom:
+            self.ball.y = self.bounds.bottom
+            self.ball.velocity[1] = -self.ball.velocity[1]
+            self.play_sound(self.sound_wall)
+        if self.ball.x < self.bounds.centerx:
+            # Left paddle
+            if self.paddle_a.rect.colliderect(self.ball.rect) and self.ball.right > self.paddle_a.right:
+                self.ball.x = self.paddle_a.right
+                self.ball.velocity[0] = -self.ball.velocity[0]
+                delta = (self.ball.centery - self.paddle_a.centery) / (self.paddle_a.height / 2.0)
+                self.ball.angle += math.pi / 6.0
+                self.play_sound(self.sound_paddle)
+        else:
+            # Right paddle
+            if self.paddle_b.rect.colliderect(self.ball.rect) and self.ball.x < self.paddle_b.x:
+                self.ball.x = self.paddle_b.x - self.ball.width
+                self.ball.velocity[0] = -self.ball.velocity[0]
+                delta = (self.ball.centery - self.paddle_b.centery) / (self.paddle_b.height / 2.0)
+                self.ball.angle += math.pi / 6.0 * delta
+                self.play_sound(self.sound_paddle)
+        # Check the ball is still in play
+        if self.ball.x < self.bounds.x:
             self.score_b.score += 1
             self.reset_game()
-        if self.ball.position[0] > self.paddle_b.position[0] + self.paddle_b.rect.width:
+            self.play_sound(self.sound_missed)
+        if self.ball.x > self.bounds.right:
             self.score_a.score += 1
             self.reset_game()
+            self.play_sound(self.sound_missed)
         
     def draw (self, display_surface):
         self.sprites.clear(display_surface, self.background)
