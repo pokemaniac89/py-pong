@@ -46,9 +46,14 @@ class Game (object):
         self.ball.velocity[0] = self.configuration['ball_velocity'] * math.cos(a)
         self.ball.velocity[1] = self.configuration['ball_velocity'] * math.sin(a)
         if random.random() < 0.5:
-            self.ball.velocity[0] = -self.ball.velocity[0]
+            self.ball.velocity[1] = -self.ball.velocity[1]
         
     def update (self):
+        
+        # Update sprites and players
+        self.sprites.update()
+        self.player_a.update(self.paddle_a, self)
+        self.player_b.update(self.paddle_b, self)
         
         # Collision check
         if self.ball.y < self.bounds.top:
@@ -59,28 +64,7 @@ class Game (object):
             self.ball.y = self.bounds.bottom
             self.ball.velocity[1] = -self.ball.velocity[1]
             self.play_sound(self.sound_wall)
-            
-        # Update sprites and players
-        self.sprites.update()
-        self.player_a.update(self.paddle_a, self)
-        self.player_b.update(self.paddle_b, self)
-        
-        if self.ball.x < self.bounds.centerx:
-            # Left paddle
-            if self.paddle_a.rect.colliderect(self.ball.rect) and self.ball.right > self.paddle_a.right:
-                self.ball.x = self.paddle_a.right
-                self.ball.velocity[0] = -self.ball.velocity[0]
-                #~ delta = (self.ball.centery - self.paddle_a.centery) / (self.paddle_a.height / 2.0)
-                self.ball.angle -= math.pi / 6.0 * random.random() * 0.5
-                self.play_sound(self.sound_paddle)
-        else:
-            # Right paddle
-            if self.paddle_b.rect.colliderect(self.ball.rect) and self.ball.x < self.paddle_b.x:
-                self.ball.x = self.paddle_b.x - self.ball.width
-                self.ball.velocity[0] = -self.ball.velocity[0]
-                #~ delta = (self.ball.centery - self.paddle_b.centery) / (self.paddle_b.height / 2.0)
-                self.ball.angle += math.pi / 6.0 * random.random() * 0.5
-                self.play_sound(self.sound_paddle)
+
         # Check the ball is still in play
         if self.ball.x < self.bounds.x:
             self.score_b.score += 1
@@ -90,6 +74,23 @@ class Game (object):
             self.score_a.score += 1
             self.reset_game()
             self.play_sound(self.sound_missed)
+
+        if self.ball.x < self.bounds.centerx:
+            # Left paddle
+            if self.paddle_a.rect.colliderect(self.ball.rect) and self.ball.right > self.paddle_a.right:
+                self.ball.x = self.paddle_a.right
+                self.ball.velocity[0] = -self.ball.velocity[0]
+                delta = (self.ball.centery - self.paddle_a.centery) / (self.paddle_a.height / 2.0)
+                print delta
+                self.play_sound(self.sound_paddle)
+        else:
+            # Right paddle
+            if self.paddle_b.rect.colliderect(self.ball.rect) and self.ball.x < self.paddle_b.x:
+                self.ball.x = self.paddle_b.x - self.ball.width
+                self.ball.velocity[0] = -self.ball.velocity[0]
+                delta = (self.ball.centery - self.paddle_b.centery) / (self.paddle_b.height / 2.0)
+                print delta
+                self.play_sound(self.sound_paddle)
         
     def draw (self, display_surface):
         self.sprites.clear(display_surface, self.background)
