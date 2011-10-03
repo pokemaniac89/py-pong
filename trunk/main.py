@@ -1,7 +1,7 @@
 import pygame, pypong
 from pypong.player import BasicAIPlayer, KeyboardPlayer, MousePlayer
 from pygame import gfxdraw
-
+    
 def run():
     configuration = {
         'screen_size': (686,488),
@@ -14,18 +14,23 @@ def run():
         'ball_image': 'assets/ball.png',
         'ball_velocity': 4.,
         'ball_velocity_bounce_multiplier': 1.125,
+        'ball_velocity_max': 32.,
         'score_left_position': (141, 30),
         'score_right_position': (473, 30),
         'digit_image': 'assets/digit_%i.png',
         'sound_missed': 'assets/missed-ball.wav',
         'sound_paddle': 'assets/bounce-paddle.wav',
         'sound_wall': 'assets/bounce-wall.wav',
+        'sound': True,
     }
     pygame.mixer.pre_init(22050, -16, 2, 1024)
     pygame.init()
     display_surface = pygame.display.set_mode(configuration['screen_size'])
     output_surface = display_surface.copy().convert_alpha()
     output_surface.fill((0,0,0))
+    #~ debug_surface = output_surface.copy()
+    #~ debug_surface.fill((0,0,0,0))
+    debug_surface = None
     clock = pygame.time.Clock()
     input_state = {'key': None, 'mouse': None}
     
@@ -51,6 +56,8 @@ def run():
         game.draw(output_surface)
         pygame.surfarray.pixels_alpha(output_surface)[:,::2] = 12
         display_surface.blit(output_surface, (0,0))
+        if debug_surface:
+            display_surface.blit(debug_surface, (0,0))
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

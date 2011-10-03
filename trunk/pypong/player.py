@@ -1,7 +1,6 @@
 import pygame, random
 
 class BasicAIPlayer(object):
-
     def __init__(self):
         self.bias = random.random() - 0.5
         
@@ -28,7 +27,6 @@ class BasicAIPlayer(object):
         pass
         
 class KeyboardPlayer(object):
-    
     def __init__(self, input_state, up_key=None, down_key=None):
         self.input_state = input_state
         self.up_key = up_key
@@ -49,7 +47,6 @@ class KeyboardPlayer(object):
         pass
         
 class MousePlayer(object):
-    
     def __init__(self, input_state):
         self.input_state = input_state
         pygame.mouse.set_visible(False)
@@ -69,5 +66,3 @@ class MousePlayer(object):
         
     def won(self):
         pass
-        
-        
