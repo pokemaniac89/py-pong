@@ -15,7 +15,7 @@ class Paddle(Sprite):
         # Build the angles from acute_angle to the first 0.5 center value then append the values going from the
         # second center 0.5 value by using the values we just calculated reversed.
         angles = [acute_angle + (0.5-acute_angle)/3.0 * n for n in xrange(4)]
-        angles += map(lambda x: 1 + x * -1, reversed(angles))
+        angles += [1 + n * -1 for n in reversed(angles)]
         # Final table is the output vector (x,y) of each angle
         self.bounce_table = [(math.cos(n*math.pi-math.pi/2.0), math.sin(n*math.pi-math.pi/2.0)) for n in angles]
         
