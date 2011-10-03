@@ -20,7 +20,7 @@ class Paddle(Sprite):
         self.bounce_table = [(math.cos(n*math.pi-math.pi/2.0), math.sin(n*math.pi-math.pi/2.0)) for n in angles]
         
     def update(self):
-        self.rect.y = max(0, min(self.bounds_y, self.rect.y + self.direction * self.velocity))
+        self.rect.y = max(self.bounds_y[0], min(self.bounds_y[1]-self.rect.height, self.rect.y + self.direction * self.velocity))
 
     def calculate_bounce(self, delta):
         return self.bounce_table[int(round(delta * (len(self.bounce_table)-1)))]
@@ -46,10 +46,15 @@ class Ball(Sprite):
         self.rect.x = self.position_vec[0]
         self.rect.y = self.position_vec[1]
     
-    def set_position(self, value):
-        self.position_vec = value
-        self.rect.topleft = value
-    position = property(lambda self: self.position_vec, set_position)
+    def set_position_x(self, value):
+        self.position_vec[0] = value
+        self.rect.left = value
+    position_x = property(lambda self: self.position_vec[0], set_position_x)
+        
+    def set_position_y(self, value):
+        self.position_vec[1] = value
+        self.rect.top = value
+    position_y = property(lambda self: self.position_vec[1], set_position_y)
     
 class Score(Sprite):
     def __init__(self, image_list, *groups):

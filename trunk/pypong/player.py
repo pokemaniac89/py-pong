@@ -23,7 +23,6 @@ class BasicAIPlayer(object):
     def lost(self):
         # If we lose, randomise the bias again
         self.bias = random.random() - 0.5
-        print self, "qq", self.bias
         
     def won(self):
         pass
