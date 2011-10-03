@@ -3,6 +3,7 @@ import pygame, random
 class BasicAIPlayer(object):
     def __init__(self):
         self.bias = random.random() - 0.5
+        self.hit_count = 0
         
     def update(self, paddle, game):
         # Dead simple AI, waits until the ball is on its side of the screen then moves the paddle to intercept.
@@ -19,6 +20,12 @@ class BasicAIPlayer(object):
         else:
             paddle.direction = 0
 
+    def hit(self):
+        self.hit_count += 1
+        if self.hit_count > 6:
+            self.bias = random.random() - 0.5 # Recalculate our bias, this game is going on forever
+            self.hit_count = 0
+            
     def lost(self):
         # If we lose, randomise the bias again
         self.bias = random.random() - 0.5
@@ -39,6 +46,9 @@ class KeyboardPlayer(object):
             paddle.direction = 1
         else:
             paddle.direction = 0
+
+    def hit(self):
+        pass
 
     def lost(self):
         pass
@@ -61,8 +71,11 @@ class MousePlayer(object):
         else:
             paddle.direction = 0
 
+    def hit(self):
+        pass
+
     def lost(self):
         pass
-        
+
     def won(self):
         pass

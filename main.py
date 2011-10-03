@@ -7,12 +7,12 @@ def run():
         'paddle_image': 'assets/paddle.png',
         'paddle_left_position': 84.,
         'paddle_right_position': 594.,
-        'paddle_velocity': 4.,
+        'paddle_velocity': 6.,
         'paddle_bounds': (0, 488), # This sets the upper and lower paddle boundary.The original game didn't allow the paddle to touch the edge, 
         'line_image': 'assets/dividing-line.png',
         'ball_image': 'assets/ball.png',
         'ball_velocity': 4.,
-        'ball_velocity_bounce_multiplier': 1.125,
+        'ball_velocity_bounce_multiplier': 1.105,
         'ball_velocity_max': 32.,
         'score_left_position': (141, 30),
         'score_right_position': (473, 30),
@@ -53,7 +53,7 @@ def run():
         input_state['mouse'] = pygame.mouse.get_pos()
         game.update()
         game.draw(output_surface)
-        pygame.surfarray.pixels_alpha(output_surface)[:,::2] = 12
+        #~ pygame.surfarray.pixels_alpha(output_surface)[:,::2] = 12
         display_surface.blit(output_surface, (0,0))
         if debug_surface:
             display_surface.blit(debug_surface, (0,0))

@@ -101,6 +101,7 @@ class Game(object):
                     self.ball.velocity = min(self.configuration['ball_velocity_max'], self.ball.velocity * self.configuration['ball_velocity_bounce_multiplier'])
                     self.ball.velocity_vec[0] = velocity[0] * self.ball.velocity
                     self.ball.velocity_vec[1] = velocity[1] * self.ball.velocity
+                    self.player_left.hit()
                     self.play_sound(self.sound_paddle)
         else:
             # Right side bullet-through-paper check on ball and paddle.
@@ -119,6 +120,7 @@ class Game(object):
                     self.ball.velocity = min(self.configuration['ball_velocity_max'], self.ball.velocity * self.configuration['ball_velocity_bounce_multiplier'])
                     self.ball.velocity_vec[0] = -velocity[0] * self.ball.velocity
                     self.ball.velocity_vec[1] = velocity[1] * self.ball.velocity
+                    self.player_right.hit()
                     self.play_sound(self.sound_paddle)
         # Bounds collision check
         if self.ball.rect.y < self.bounds.top:
