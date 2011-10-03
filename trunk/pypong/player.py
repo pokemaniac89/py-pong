@@ -1,10 +1,13 @@
-import pygame
+import pygame, random
 
-class BasicAIPlayer (object):
+class BasicAIPlayer(object):
 
-    def update (self, paddle, game):
-        if (paddle.x < game.bounds.centerx and game.ball.x < game.bounds.centerx) or (paddle.x > game.bounds.centerx and game.ball.x > game.bounds.centerx):
-            delta = paddle.centery - game.ball.centery
+    def __init__(self):
+        self.bias = random.random() - 0.5
+        
+    def update(self, paddle, game):
+        if (paddle.rect.x < game.bounds.centerx and game.ball.rect.x < game.bounds.centerx) or (paddle.rect.x > game.bounds.centerx and game.ball.rect.x > game.bounds.centerx):
+            delta = (paddle.rect.centery + self.bias * paddle.rect.height) - game.ball.rect.centery 
             if abs(delta) > paddle.velocity:
                 if delta > 0:
                     paddle.direction = -1
@@ -15,14 +18,14 @@ class BasicAIPlayer (object):
         else:
             paddle.direction = 0
 
-class KeyboardPlayer (object):
+class KeyboardPlayer(object):
     
-    def __init__ (self, input_state, up_key=None, down_key=None):
+    def __init__(self, input_state, up_key=None, down_key=None):
         self.input_state = input_state
         self.up_key = up_key
         self.down_key = down_key
         
-    def update (self, paddle, game):
+    def update(self, paddle, game):
         if self.input_state['key'][self.up_key]:
             paddle.direction = -1
         elif self.input_state['key'][self.down_key]:
@@ -30,14 +33,14 @@ class KeyboardPlayer (object):
         else:
             paddle.direction = 0
         
-class MousePlayer (object):
+class MousePlayer(object):
     
-    def __init__ (self, input_state):
+    def __init__(self, input_state):
         self.input_state = input_state
         pygame.mouse.set_visible(False)
         
-    def update (self, paddle, game):
-        centery = paddle.centery/int(paddle.velocity)
+    def update(self, paddle, game):
+        centery = paddle.rect.centery/int(paddle.velocity)
         mousey = self.input_state['mouse'][1]/int(paddle.velocity)
         if centery > mousey:
             paddle.direction = -1
