@@ -1,6 +1,5 @@
 import pygame, pypong
 from pypong.player import BasicAIPlayer, KeyboardPlayer, MousePlayer
-from pygame import gfxdraw
     
 def run():
     configuration = {

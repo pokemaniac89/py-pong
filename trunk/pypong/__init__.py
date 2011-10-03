@@ -1,5 +1,4 @@
-import pygame, math, random, entity, time
-from pygame import gfxdraw
+import pygame, math, random, entity
 
 def load_image(path):
     surface = pygame.image.load(path)
@@ -56,9 +55,8 @@ class Game(object):
         self.sound_missed = pygame.mixer.Sound(configuration['sound_missed'])
         self.sound_paddle = pygame.mixer.Sound(configuration['sound_paddle'])
         self.sound_wall = pygame.mixer.Sound(configuration['sound_wall'])
-        self.reset_game(True) # random.random()<0.5)
+        self.reset_game(random.random()<0.5)
         self.running = True
-        self.do_update = True
         
     def play_sound(self, sound):
         if self.configuration['sound']:
@@ -72,8 +70,6 @@ class Game(object):
         a = random.random() * math.pi / 2. - math.pi / 4.
         self.ball.velocity_vec[0] = self.ball.velocity * math.cos(a)
         self.ball.velocity_vec[1] = self.ball.velocity * math.sin(a)
-        self.ball.velocity_vec = [24,0]
-        self.ball.position_y = 200.0
         if random.random() < 0.5:
             self.ball.velocity_vec[1] = -self.ball.velocity_vec[1]
         if serveLeft:
@@ -84,10 +80,9 @@ class Game(object):
         ball_position_x = self.ball.position_x
         ball_position_y = self.ball.position_y
         # Update sprites and players
-        if self.do_update:
-            self.sprites.update()
-            self.player_left.update(self.paddle_left, self)
-            self.player_right.update(self.paddle_right, self)
+        self.sprites.update()
+        self.player_left.update(self.paddle_left, self)
+        self.player_right.update(self.paddle_right, self)
         # Paddle collision check. Could probably just do a line-line intersect but I think I prefer having the pixel-pefect result of a rect-rect intersect test as well.
         if self.ball.rect.x < self.bounds.centerx:
             # Left side bullet-through-paper check on ball and paddle
@@ -99,7 +94,6 @@ class Game(object):
                     self.ball.position_x-self.ball.rect.width/2, self.ball.position_y+self.ball.rect.height/2
                 )
                 if intersect_point:
-                    self.ball.position_x = intersect_point[0]
                     self.ball.position_y = intersect_point[1]-self.ball.rect.height/2
                 if intersect_point or (self.paddle_left.rect.colliderect(self.ball.rect) and self.ball.rect.right > self.paddle_left.rect.right):
                     self.ball.position_x = self.paddle_left.rect.right
@@ -118,11 +112,10 @@ class Game(object):
                     self.ball.position_x-self.ball.rect.width/2, self.ball.position_y+self.ball.rect.height/2
                 )
                 if intersect_point:
-                    self.ball.position_x = intersect_point[0]
                     self.ball.position_y = intersect_point[1]-self.ball.rect.height/2
                 if intersect_point or (self.paddle_right.rect.colliderect(self.ball.rect) and self.ball.rect.x < self.paddle_right.rect.x):
                     self.ball.position_x = self.paddle_right.rect.x - self.ball.rect.width
-                    velocity = self.paddle_left.calculate_bounce(min(1,max(0,(self.ball.rect.centery - self.paddle_right.rect.y)/float(self.paddle_right.rect.height))))
+                    velocity = self.paddle_right.calculate_bounce(min(1,max(0,(self.ball.rect.centery - self.paddle_right.rect.y)/float(self.paddle_right.rect.height))))
                     self.ball.velocity = min(self.configuration['ball_velocity_max'], self.ball.velocity * self.configuration['ball_velocity_bounce_multiplier'])
                     self.ball.velocity_vec[0] = -velocity[0] * self.ball.velocity
                     self.ball.velocity_vec[1] = velocity[1] * self.ball.velocity
