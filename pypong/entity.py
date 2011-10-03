@@ -11,18 +11,20 @@ class Paddle(Sprite):
         self.bounds_y = bounds_y
         # Like original pong, we break this up into 8 segments from the edge angle (acute_angle) to pi/2 at the center
         # Changing acute_angle lets us change the extreme edge angle of the paddle.
-        acute_angle = .25
+        acute_angle = .125
+        # Build the angles from acute_angle to the first 0.5 center value then append the values going from the
+        # second center 0.5 value by using the values we just calculated reversed.
         angles = [acute_angle + (0.5-acute_angle)/3.0 * n for n in xrange(4)]
         angles += map(lambda x: 1 + x * -1, reversed(angles))
         # Final table is the output vector (x,y) of each angle
-        self.bounce_table = [(math.cos(n*math.pi), math.sin(n*math.pi)) for n in angles]
+        self.bounce_table = [(math.cos(n*math.pi-math.pi/2.0), math.sin(n*math.pi-math.pi/2.0)) for n in angles]
         
     def update(self):
         self.rect.y = max(0, min(self.bounds_y, self.rect.y + self.direction * self.velocity))
 
     def calculate_bounce(self, delta):
         return self.bounce_table[int(round(delta * (len(self.bounce_table)-1)))]
-        
+    
 class Line(Sprite):
     def __init__(self, image, *groups):
         Sprite.__init__(self, *groups)
@@ -30,23 +32,24 @@ class Line(Sprite):
         self.rect = self.image.get_rect()
 
 class Ball(Sprite):
-    def __init__(self, image, *groups):
+    def __init__(self, velocity, image, *groups):
         Sprite.__init__(self, *groups)
+        self.velocity = velocity
         self.image = image
         self.rect = self.image.get_rect()
-        self.velocity = [0.,0.]
+        self.position_vec = [0., 0.]
+        self.velocity_vec = [0., 0.]
         
     def update(self):
-        self.rect.x =  self.rect.x + self.velocity[0]
-        self.rect.y =  self.rect.y + self.velocity[1]
+        self.position_vec[0] += self.velocity_vec[0]
+        self.position_vec[1] += self.velocity_vec[1]
+        self.rect.x = self.position_vec[0]
+        self.rect.y = self.position_vec[1]
     
-    def get_angle(self):
-        return math.atan2(self.velocity[1], self.velocity[0])
-    def set_angle(self, value):
-        m = math.sqrt(self.velocity[0]**2+self.velocity[1]**2)
-        self.velocity[0] = m * math.cos(value)
-        self.velocity[1] = m * math.sin(value)
-    angle = property(get_angle, set_angle)
+    def set_position(self, value):
+        self.position_vec = value
+        self.rect.topleft = value
+    position = property(lambda self: self.position_vec, set_position)
     
 class Score(Sprite):
     def __init__(self, image_list, *groups):
