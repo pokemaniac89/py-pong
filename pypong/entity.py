@@ -1,78 +1,65 @@
 import pygame, math
 from pygame.sprite import Sprite
-
-class BaseGameSprite (Sprite):
     
-    def set_position (self, position):
-        self.rect.topleft = position
-    def get_position (self):
-        return self.rect.topleft
-    position = property(get_position, set_position)
-    
-    def set_x (self, value):
-        self.rect.left = value
-    x = property(lambda self: self.rect.left, set_x)
-    
-    def set_y (self, value):
-        self.rect.top = value
-    y = property(lambda self: self.rect.top, set_y)
-    
-    height = property(lambda self: self.rect.height)
-    width = property(lambda self: self.rect.width)
-    bottom = property(lambda self: self.rect.bottom)
-    right = property(lambda self: self.rect.right)
-    centerx = property(lambda self: self.rect.centerx)
-    centery = property(lambda self: self.rect.centery)
-    
-class Paddle (BaseGameSprite):
-    def __init__ (self, velocity, image, bounds_y, *groups):
+class Paddle(Sprite):
+    def __init__(self, velocity, image, bounds_y, *groups):
         Sprite.__init__(self, *groups)
         self.image = image
         self.rect = self.image.get_rect()
         self.direction = 0
         self.velocity = velocity
         self.bounds_y = bounds_y
+        # Like original pong, we break this up into 8 segments from the edge angle (acute_angle) to pi/2 at the center
+        # Changing acute_angle lets us change the extreme edge angle of the paddle.
+        acute_angle = .25
+        angles = [acute_angle + (0.5-acute_angle)/3.0 * n for n in xrange(4)]
+        angles += map(lambda x: 1 + x * -1, reversed(angles))
+        # Final table is the output vector (x,y) of each angle
+        self.bounce_table = [(math.cos(n*math.pi), math.sin(n*math.pi)) for n in angles]
         
-    def update (self):
+    def update(self):
         self.rect.y = max(0, min(self.bounds_y, self.rect.y + self.direction * self.velocity))
 
-class Line (BaseGameSprite):
-    def __init__ (self, image, *groups):
+    def calculate_bounce(self, delta):
+        return self.bounce_table[int(round(delta * (len(self.bounce_table)-1)))]
+        
+class Line(Sprite):
+    def __init__(self, image, *groups):
         Sprite.__init__(self, *groups)
         self.image = image
         self.rect = self.image.get_rect()
 
-class Ball (BaseGameSprite):
-    def __init__ (self, image, *groups):
+class Ball(Sprite):
+    def __init__(self, image, *groups):
         Sprite.__init__(self, *groups)
         self.image = image
         self.rect = self.image.get_rect()
         self.velocity = [0.,0.]
         
-    def update (self):
+    def update(self):
         self.rect.x =  self.rect.x + self.velocity[0]
         self.rect.y =  self.rect.y + self.velocity[1]
     
-    def get_angle (self):
+    def get_angle(self):
         return math.atan2(self.velocity[1], self.velocity[0])
-    def set_angle (self, value):
+    def set_angle(self, value):
         m = math.sqrt(self.velocity[0]**2+self.velocity[1]**2)
         self.velocity[0] = m * math.cos(value)
         self.velocity[1] = m * math.sin(value)
     angle = property(get_angle, set_angle)
     
-class Score (BaseGameSprite):
-    def __init__ (self, image_list, *groups):
+class Score(Sprite):
+    def __init__(self, image_list, *groups):
         Sprite.__init__(self, *groups)
         self.image_list = image_list
         self.image = None
         self.rect = pygame.Rect(0,0,0,0)
         self.score = 0
     
-    def get_score (self):
+    def get_score(self):
         return self.score_value
         
-    def set_score (self, value):
+    def set_score(self, value):
         self.score_value = value
         digit_spacing = 8
         digit_width = self.image_list[0].get_width()

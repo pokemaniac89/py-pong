@@ -1,18 +1,18 @@
 import pygame, pypong
 from pypong.player import BasicAIPlayer, KeyboardPlayer, MousePlayer
 
-def run ():
+def run():
     configuration = {
         'screen_size': (686,488),
         'paddle_image': 'assets/paddle.png',
-        'paddle_a_position': 84,
-        'paddle_b_position': 594,
+        'paddle_left_position': 84,
+        'paddle_right_position': 594,
         'paddle_velocity': 4,
         'line_image': 'assets/dividing-line.png',
         'ball_image': 'assets/ball.png',
         'ball_velocity': 4,
-        'score_a_position': (141, 30),
-        'score_b_position': (473, 30),
+        'score_left_position': (141, 30),
+        'score_right_position': (473, 30),
         'digit_image': 'assets/digit_%i.png',
         'sound_missed': 'assets/missed-ball.wav',
         'sound_paddle': 'assets/bounce-paddle.wav',
@@ -27,12 +27,12 @@ def run ():
     input_state = {'key': None, 'mouse': None}
     
     # Prepare game
-    player_b = KeyboardPlayer(input_state, pygame.K_w, pygame.K_s)
-    #~ player_b = MousePlayer(input_state)
+    #~ player_left = KeyboardPlayer(input_state, pygame.K_w, pygame.K_s)
+    #~ player_right = MousePlayer(input_state)
     
-    player_a = BasicAIPlayer()
-    #~ player_b = BasicAIPlayer()
-    game = pypong.Game(player_a, player_b, configuration)
+    player_left = BasicAIPlayer()
+    player_right = BasicAIPlayer()
+    game = pypong.Game(player_left, player_right, configuration)
     
     # Main game loop
     timestamp = 1
