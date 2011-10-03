@@ -53,7 +53,7 @@ def run():
         input_state['mouse'] = pygame.mouse.get_pos()
         game.update()
         game.draw(output_surface)
-        #~ pygame.surfarray.pixels_alpha(output_surface)[:,::2] = 12
+        pygame.surfarray.pixels_alpha(output_surface)[:,::2] = 12
         display_surface.blit(output_surface, (0,0))
         if debug_surface:
             display_surface.blit(debug_surface, (0,0))
