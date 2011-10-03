@@ -9,6 +9,7 @@ def run():
         'paddle_left_position': 84.,
         'paddle_right_position': 594.,
         'paddle_velocity': 4.,
+        'paddle_bounds': (0, 488), # This sets the upper and lower paddle boundary.The original game didn't allow the paddle to touch the edge, 
         'line_image': 'assets/dividing-line.png',
         'ball_image': 'assets/ball.png',
         'ball_velocity': 4.,

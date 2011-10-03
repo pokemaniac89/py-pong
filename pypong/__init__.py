@@ -17,9 +17,8 @@ class Game(object):
         line = entity.Line(load_image(configuration['line_image']), self.sprites)
         line.rect.topleft = ((configuration['screen_size'][0]-line.rect.width)/2, 0)
         paddle_image = load_image(configuration['paddle_image'])
-        bounds_y = configuration['screen_size'][1] - paddle_image.get_height()
-        self.paddle_left = entity.Paddle(configuration['paddle_velocity'], paddle_image, bounds_y, self.sprites)
-        self.paddle_right = entity.Paddle(configuration['paddle_velocity'], paddle_image, bounds_y, self.sprites)
+        self.paddle_left = entity.Paddle(configuration['paddle_velocity'], paddle_image, configuration['paddle_bounds'], self.sprites)
+        self.paddle_right = entity.Paddle(configuration['paddle_velocity'], paddle_image, configuration['paddle_bounds'], self.sprites)
         self.paddle_left.rect.topleft = (self.configuration['paddle_left_position'], (self.configuration['screen_size'][1]-self.paddle_left.rect.height)/2)
         self.paddle_right.rect.topleft = (self.configuration['paddle_right_position'], (self.configuration['screen_size'][1]-self.paddle_left.rect.height)/2)
         digit_images = [load_image(configuration['digit_image'] % n) for n in xrange(10)]
@@ -41,13 +40,14 @@ class Game(object):
         
     def reset_game(self, serveLeft=True):
         y = self.configuration['screen_size'][1] - self.ball.rect.height
-        self.ball.position = [(self.configuration['screen_size'][0]-self.ball.rect.width)/2.0, y * random.random()]
+        self.ball.position_x = (self.configuration['screen_size'][0]-self.ball.rect.width)/2.0
+        self.ball.position_y = y * random.random()
         self.ball.velocity = self.configuration['ball_velocity']
         a = random.random() * math.pi / 2. - math.pi / 4.
         self.ball.velocity_vec[0] = self.ball.velocity * math.cos(a)
         self.ball.velocity_vec[1] = self.ball.velocity * math.sin(a)
         self.ball.velocity_vec = [4,0]
-        self.ball.position[1] = 200.0
+        self.ball.position_y = 200.0
         if random.random() < 0.5:
             self.ball.velocity_vec[1] = -self.ball.velocity_vec[1]
         if serveLeft:
@@ -60,11 +60,13 @@ class Game(object):
         self.player_left.update(self.paddle_left, self)
         self.player_right.update(self.paddle_right, self)
         
+        # Ball bullet-through-paper check
+        
         # Paddle collision check
         if self.ball.rect.x < self.bounds.centerx:
             # Left paddle
             if self.paddle_left.rect.colliderect(self.ball.rect) and self.ball.rect.right > self.paddle_left.rect.right:
-                self.ball.position[0] = self.paddle_left.rect.right
+                self.ball.position_x = self.paddle_left.rect.right
                 velocity = self.paddle_left.calculate_bounce(min(1,max(0,(self.ball.rect.centery - self.paddle_left.rect.y)/float(self.paddle_left.rect.height))))
                 self.ball.velocity *= self.configuration['ball_velocity_bounce_multiplier']
                 self.ball.velocity_vec[0] = velocity[0] * self.ball.velocity
@@ -73,7 +75,7 @@ class Game(object):
         else:
             # Right paddle
             if self.paddle_right.rect.colliderect(self.ball.rect) and self.ball.rect.x < self.paddle_right.rect.x:
-                self.ball.position[0] = self.paddle_right.rect.x - self.ball.rect.width
+                self.ball.position_x = self.paddle_right.rect.x - self.ball.rect.width
                 velocity = self.paddle_left.calculate_bounce(min(1,max(0,(self.ball.rect.centery - self.paddle_right.rect.y)/float(self.paddle_right.rect.height))))
                 self.ball.velocity *= self.configuration['ball_velocity_bounce_multiplier']
                 self.ball.velocity_vec[0] = -velocity[0] * self.ball.velocity
@@ -82,11 +84,11 @@ class Game(object):
         
         # Bounds collision check
         if self.ball.rect.y < self.bounds.top:
-            self.ball.position[1] = float(self.bounds.top)
+            self.ball.position_y = float(self.bounds.top)
             self.ball.velocity_vec[1] = -self.ball.velocity_vec[1]
             self.play_sound(self.sound_wall)
         elif self.ball.rect.y > self.bounds.bottom:
-            self.ball.position[1] = float(self.bounds.bottom)
+            self.ball.position_y = float(self.bounds.bottom)
             self.ball.velocity_vec[1] = -self.ball.velocity_vec[1]
             self.play_sound(self.sound_wall)
 
