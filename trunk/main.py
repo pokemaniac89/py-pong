@@ -1,16 +1,18 @@
 import pygame, pypong
 from pypong.player import BasicAIPlayer, KeyboardPlayer, MousePlayer
+from pygame import gfxdraw
 
 def run():
     configuration = {
         'screen_size': (686,488),
         'paddle_image': 'assets/paddle.png',
-        'paddle_left_position': 84,
-        'paddle_right_position': 594,
-        'paddle_velocity': 4,
+        'paddle_left_position': 84.,
+        'paddle_right_position': 594.,
+        'paddle_velocity': 4.,
         'line_image': 'assets/dividing-line.png',
         'ball_image': 'assets/ball.png',
-        'ball_velocity': 4,
+        'ball_velocity': 4.,
+        'ball_velocity_bounce_multiplier': 1.125,
         'score_left_position': (141, 30),
         'score_right_position': (473, 30),
         'digit_image': 'assets/digit_%i.png',

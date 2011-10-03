@@ -28,26 +28,30 @@ class Game(object):
         self.score_right = entity.Score(digit_images, self.sprites)
         self.score_right.rect.topleft = configuration['score_right_position']
         ball_image = load_image(configuration['ball_image'])
-        self.ball = entity.Ball(ball_image, self.sprites)
+        self.ball = entity.Ball(self.configuration['ball_velocity'], ball_image, self.sprites)
         self.bounds = pygame.Rect(20, 0, configuration['screen_size'][0]-ball_image.get_width()-20, configuration['screen_size'][1]-ball_image.get_height())
         self.sound_missed = pygame.mixer.Sound(configuration['sound_missed'])
         self.sound_paddle = pygame.mixer.Sound(configuration['sound_paddle'])
         self.sound_wall = pygame.mixer.Sound(configuration['sound_wall'])
-        self.reset_game(True)
+        self.reset_game(True) # random.random()<0.5)
         self.running = True
         
     def play_sound(self, sound):
         sound.play()
         
     def reset_game(self, serveLeft=True):
-        self.ball.rect.topleft = ((self.configuration['screen_size'][0]-self.ball.rect.width)/2, (self.configuration['screen_size'][1]-self.ball.rect.height)/2)
+        y = self.configuration['screen_size'][1] - self.ball.rect.height
+        self.ball.position = [(self.configuration['screen_size'][0]-self.ball.rect.width)/2.0, y * random.random()]
+        self.ball.velocity = self.configuration['ball_velocity']
         a = random.random() * math.pi / 2. - math.pi / 4.
-        self.ball.velocity[0] = self.configuration['ball_velocity'] * math.cos(a)
-        self.ball.velocity[1] = self.configuration['ball_velocity'] * math.sin(a)
+        self.ball.velocity_vec[0] = self.ball.velocity * math.cos(a)
+        self.ball.velocity_vec[1] = self.ball.velocity * math.sin(a)
+        self.ball.velocity_vec = [4,0]
+        self.ball.position[1] = 200.0
         if random.random() < 0.5:
-            self.ball.velocity[1] = -self.ball.velocity[1]
+            self.ball.velocity_vec[1] = -self.ball.velocity_vec[1]
         if serveLeft:
-            self.ball.velocity[0] *= -1
+            self.ball.velocity_vec[0] *= -1
         
     def update(self):
         
@@ -60,34 +64,42 @@ class Game(object):
         if self.ball.rect.x < self.bounds.centerx:
             # Left paddle
             if self.paddle_left.rect.colliderect(self.ball.rect) and self.ball.rect.right > self.paddle_left.rect.right:
-                self.ball.rect.x = self.paddle_left.rect.right
-                velocity = self.paddle_left.calculate_bounce((self.ball.rect.y - self.paddle_left.rect.y) / float(self.paddle_left.rect.height))
-                self.ball.velocity[0] = -self.ball.velocity[0]
+                self.ball.position[0] = self.paddle_left.rect.right
+                velocity = self.paddle_left.calculate_bounce(min(1,max(0,(self.ball.rect.centery - self.paddle_left.rect.y)/float(self.paddle_left.rect.height))))
+                self.ball.velocity *= self.configuration['ball_velocity_bounce_multiplier']
+                self.ball.velocity_vec[0] = velocity[0] * self.ball.velocity
+                self.ball.velocity_vec[1] = velocity[1] * self.ball.velocity
                 self.play_sound(self.sound_paddle)
         else:
             # Right paddle
             if self.paddle_right.rect.colliderect(self.ball.rect) and self.ball.rect.x < self.paddle_right.rect.x:
-                self.ball.rect.x = self.paddle_right.rect.x - self.ball.rect.width
-                velocity = self.paddle_right.calculate_bounce((self.ball.rect.y - self.paddle_right.rect.y) / float(self.paddle_right.rect.height))
-                self.ball.velocity[0] = -self.ball.velocity[0]
+                self.ball.position[0] = self.paddle_right.rect.x - self.ball.rect.width
+                velocity = self.paddle_left.calculate_bounce(min(1,max(0,(self.ball.rect.centery - self.paddle_right.rect.y)/float(self.paddle_right.rect.height))))
+                self.ball.velocity *= self.configuration['ball_velocity_bounce_multiplier']
+                self.ball.velocity_vec[0] = -velocity[0] * self.ball.velocity
+                self.ball.velocity_vec[1] = velocity[1] * self.ball.velocity
                 self.play_sound(self.sound_paddle)
         
         # Bounds collision check
         if self.ball.rect.y < self.bounds.top:
-            self.ball.rect.y = self.bounds.top
-            self.ball.velocity[1] = -self.ball.velocity[1]
+            self.ball.position[1] = float(self.bounds.top)
+            self.ball.velocity_vec[1] = -self.ball.velocity_vec[1]
             self.play_sound(self.sound_wall)
         elif self.ball.rect.y > self.bounds.bottom:
-            self.ball.rect.y = self.bounds.bottom
-            self.ball.velocity[1] = -self.ball.velocity[1]
+            self.ball.position[1] = float(self.bounds.bottom)
+            self.ball.velocity_vec[1] = -self.ball.velocity_vec[1]
             self.play_sound(self.sound_wall)
 
         # Check the ball is still in play
         if self.ball.rect.x < self.bounds.x:
+            self.player_left.lost()
+            self.player_right.won()
             self.score_right.score += 1
             self.reset_game(False)
             self.play_sound(self.sound_missed)
         if self.ball.rect.x > self.bounds.right:
+            self.player_left.won()
+            self.player_right.lost()
             self.score_left.score += 1
             self.reset_game(True)
             self.play_sound(self.sound_missed)
